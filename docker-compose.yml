@@ -1,0 +1,60 @@
+#! vim set filetype=yaml:
+# ------------------------------
+# Docker Compose file for D0X-K1t
+# -------------------------------
+
+---
+version: '3.9'
+
+services:
+  server:
+    container_name: d0x-k1t
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: d0x-k1t:local
+    volumes:
+      - "./doxkit.db:/srv/D0x-K1t-v2/doxkit.db"
+    ports:
+      - 5000:5000
+    expose:
+      - 5000
+    networks:
+      d0xk1t:
+        aliases:
+          - d0xk1t-server
+        ipv4_address: 172.25.0.1
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok-box
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    environment:
+      - NGROK_AUTHTOKEN={$CHANGE_ME}
+      - NGROK_CONFIG=/etc/ngrok.yml
+    volumes:
+      - "$(pwd)/ngrok.yml:/etc/ngrok.yml"
+    networks:
+      - d0xk1t:
+        aliases:
+          - ngrok
+        ipv4_address: 172.25.0.2
+
+networks:
+  d0xk1t:
+    driver: bridge
+    enable_ipv6: false
+    ipam:
+      driver: default
+      config:
+        - subnet: 127.25.0.0/24
+          gateway: 172.25.0.1
