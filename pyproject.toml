@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "d0x-k1t-v2"
+version = "0.2.1"
+description = "A Doxing app written with Flask"
+authors = ["anoduck <11767-anoduck@users.noreply.gitgud.io>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "d0x_k1t_v2"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Flask = "^2.2.3"
+flask-googlemaps = "^0.4.1"
+Flask-SQLAlchemy = "^3.0.3"
+SQLAlchemy = "^2.0.7"
+Flask-WTF = "^1.1.1"
+WTForms = "^3.0.1"
+Flask-Bootstrap = "^3.3.7.1"
+whois = "^0.9.27"
+pygeoip = "^0.3.2"
+crtsh = "^0.3.1"
+flask-nav3 = "^0.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

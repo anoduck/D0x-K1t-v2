@@ -15,8 +15,8 @@ from wtforms import StringField, DateField, IntegerField, TextAreaField, Passwor
 from wtforms.validators import DataRequired, Length, IPAddress, InputRequired
 from flask_bootstrap import Bootstrap
 from flask_googlemaps import GoogleMaps
-from flask_nav import Nav
-from flask_nav.elements import Navbar, View
+from flask_nav3 import Nav
+from flask_nav3.elements import Navbar, View
 
 # Import for dependency-handling
 import pkg_resources
@@ -34,6 +34,7 @@ import getpass
 import socket
 import requests
 import signal
+from collections.abc import MutableMapping
 from time import gmtime, strftime, time
 from uuid import getnode as get_mac
 from datetime import datetime
@@ -72,7 +73,7 @@ db = SQLAlchemy(app)
 # Flask Form for Dox function
 class DoxForm(FlaskForm):
     name = StringField('Full Name', validators=[DataRequired()])
-    textarea = TextAreaField('Other Information (will be parsed as YAML)', 
+    textarea = TextAreaField('Other Information (will be parsed as YAML)',
     render_kw={"placeholder": """e.g\n Website: https://google.com"""})
 
 # Flask Form for GeoIP function
@@ -94,16 +95,16 @@ class Doxkit(db.Model):
     def __init__(self, name, textarea):
         self.name = name
         self.textarea = textarea
-    
+
     def __repr__(self):
         return '<Name {0}>'.format(self.name)
 
-# Helper function for signal Handler to kill safely 
+# Helper function for signal Handler to kill safely
 # as well as actual application
 def signal_handler(signal, frame):
-    print "\033[1;32m\nKilling D0xk1t. Thanks for playing!\033[0m"
+    print ("\033[1;32m\nKilling D0xk1t. Thanks for playing!\033[0m")
     sys.exit(0)
-        
+
 # Helper function for deserializing model to yaml
 # Thank you: https://stackoverflow.com/questions/42586609/generate-yaml-file-from-sqlalchemy-class-model
 def yaml_from_model(model):
@@ -121,14 +122,14 @@ localhost = socket.gethostbyname(user)
 lan_ip = os.popen("ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'").read()
 
 header = '\033[1;34m' + """
-     ______   _______  __   __  ___   _  ____   _______ 
+     ______   _______  __   __  ___   _  ____   _______
     |      | |  _    ||  |_|  ||   | | ||    | |       |
     |  _    || | |   ||       ||   |_| | |   | |_     _|
-    | | |   || | |   ||       ||      _| |   |   |   |  
-    | |_|   || |_|   | |     | |     |_  |   |   |   |  
-    |       ||       ||   _   ||    _  | |   |   |   |  
-    |______| |_______||__| |__||___| |_| |___|   |___|  
-    
+    | | |   || | |   ||       ||      _| |   |   |   |
+    | |_|   || |_|   | |     | |     |_  |   |   |   |
+    |       ||       ||   _   ||    _  | |   |   |   |
+    |______| |_______||__| |__||___| |_| |___|   |___|
+
     https://github.com/roo7k1d/D0x-K1t-v2
 """ + '\033[1;37m'
 
@@ -164,11 +165,11 @@ def index():
                             small="Welcome to D0x-K1t v2!",
                             localhost=localhost, # Localhost address
                             lan_ip=lan_ip,  # LAN Address
-                            ) 
+                            )
 # Dox module
 @app.route('/dox', methods=['GET', 'POST'])
 def dox():
-    description = """  D0x-k1t v2 is the new way for gathering information on a specific target. 
+    description = """  D0x-k1t v2 is the new way for gathering information on a specific target.
           You can use one of the many tools on the left side of the screen.
           If you know another website you want to see on the D0x-K1t website,
           you can easily contact me via GitHub."""
@@ -183,16 +184,16 @@ def dox():
         parsed_yaml = {}
 
         # Load raw text as yaml data into dict
-        # ... will now have a key-value structure for template            
+        # ... will now have a key-value structure for template
         parsed_yaml = yaml.load(request.form["textarea"], Loader=yaml.FullLoader)
-        
+
         # Add 'n commit 'n flash success!
         d = Doxkit(request.form['name'], str(parsed_yaml))
         db.session.add(d)
         db.session.commit()
         flash("D0x created successfully!", "success")
-                                
-    # Render normally, assumption with GET request    
+
+    # Render normally, assumption with GET request
     return render_template('dox.html',
                             title="D0x Module",
                             small="Writing comprehensive reports for the purpose of information gathering",
@@ -204,37 +205,37 @@ def dox():
 # Delete-dox GET request
 @app.route('/delete-dox/<delete_id>', methods=['GET'])
 def deletedox(delete_id):
-    
+
     # Find query by ID, and then delete
     Doxkit.query.filter_by(id=delete_id).delete()
-    
+
     # Commit Changes
     db.session.commit()
-    
+
     # Notify user
     flash("Deleted query!", "success")
-    return redirect(url_for('dox')) 
+    return redirect(url_for('dox'))
 
 
 # Export-dox command
 @app.route('/export-dox-csv/<export_id>', methods=['GET'])
 def exportdox_csv(export_id):
-    
+
     # Create a time object to append to file
-    time = strftime("%Y-%m-%d-%H:%M:%S", gmtime())    
+    time = strftime("%Y-%m-%d-%H:%M:%S", gmtime())
     _csv = open('{}.csv'.format(time), 'wb')
-    
+
     # Create CSV writer to newly created file.
     outcsv = csv.writer(_csv)
-    
+
     # Get all records, and write to CSV.
     records = db.session.query(Doxkit).all()
     [outcsv.writerow([getattr(curr, column.name) for column in Doxkit.__mapper__.columns]) for curr in records]
     _csv.close()
-    
+
     # Notify user
     flash("Exported Dox! Stored in your D0xk1t path.", "success")
-    return redirect(url_for('dox'))                     
+    return redirect(url_for('dox'))
 
 
 # GeoIP Module
@@ -254,26 +255,26 @@ def geoip():
         try:
             # Find location by specified IP address
             ip_data = geoip.record_by_addr(request.form['ip'])
-            
+
             # Re-render template with proper coordinates
             return render_template('geoip.html', title="GeoIP Module", user=user, description=description, form=form, latitude=ip_data["latitude"], longitude=ip_data["longitude"], ip_data=ip_data)
-        
+
         # If not, flash error
         except (TypeError, ValueError, socket.error):
             flash("Invalid IP Address provided!", "danger")
-            return redirect(url_for('geoip')) 
+            return redirect(url_for('geoip'))
     else:
         return render_template('geoip.html', title="GeoIP Module", small="Using locational data to conduct info-gathering",
                                 user=user, description=description, form=form,
                                 latitude="0", longitude="0")
 
-# GeoIP API endpoint    
+# GeoIP API endpoint
 @app.route('/api/geoip/<ip_address>')
 def ipinfo(ip_address):
     geoip = pygeoip.GeoIP("app/GeoLiteCity.dat")
     ip_data = geoip.record_by_addr(ip_address)
     return jsonify(ip_data)
-    
+
 
 # DNS Enumeration
 @app.route('/dns', methods=['GET', 'POST'])
@@ -283,24 +284,24 @@ def dns():
     display web content. Domains, especially those that are not properly configured,
     give penetration testers great opportunity to gather sensitive information in the
     form of metadata, whether it be an address from a WHOIS lookup, or nameservers."""
-    
+
     form = DNSForm()
-    
+
     if request.method == "POST":
-        
-        # Obtain whois data 
+
+        # Obtain whois data
         whois_data = whois(request.form["url"])
-        
+
         # Subdomain enumeration using crt.sh
         _subdomain = subdomain_search(request.form["url"])
         subdomain = [y['domain'] for y in to_dict_from_json(_subdomain)]
         # Re-render with appopriate parameters
-        return render_template('dns.html', title="DNS Enumeration Module", 
-                            user=user, description=description, 
+        return render_template('dns.html', title="DNS Enumeration Module",
+                            user=user, description=description,
                             form=form, whois=whois_data, subdomain=subdomain)
     else:
-        return render_template('dns.html', title="DNS Enumeration Module", 
-                            user=user,description=description, 
+        return render_template('dns.html', title="DNS Enumeration Module",
+                            user=user,description=description,
                             form=form, whois=None, subdomain=None)
 '''
 # Nmap
@@ -315,10 +316,10 @@ def nmap():
     return render_template('nmap.html', title="webNmap Module", description=description,
         small="A great user interface for quick Nmap scanning", user=user)
 '''
-    
+
 # Register filters
-app.jinja_env.filters['to_dict'] = to_dict 
+app.jinja_env.filters['to_dict'] = to_dict
 
 if __name__ == '__main__':
-    print header
+    print(header)
     app.run()
