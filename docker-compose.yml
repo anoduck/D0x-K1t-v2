@@ -42,8 +42,12 @@ services:
       - NGROK_CONFIG=/etc/ngrok.yml
     volumes:
       - ./ngrok.yml:/etc/ngrok.yml
+      # - ./ngrok-logs:/var/log/ngrok-log
     ports:
       - 80:80
+      - 4040:4040
+    expose:
+      - 4040
     networks:
       d0xk1t:
         aliases:

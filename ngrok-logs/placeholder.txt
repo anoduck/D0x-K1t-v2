@@ -1,0 +1,1 @@
+This is a placeholder file for Ngrok logs directory. It serves no other purpose than to hold the place of this directory
