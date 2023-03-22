@@ -23,7 +23,7 @@ import pkg_resources
 from pkg_resources import DistributionNotFound, VersionConflict
 
 # Networking imports
-from whois import whois
+import whois
 import pygeoip
 from crtsh import crtshAPI
 

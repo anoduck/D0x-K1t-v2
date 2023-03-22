@@ -19,7 +19,7 @@ services:
       dockerfile: ./Dockerfile
     image: d0x-k1t:local
     volumes:
-      - "./doxkit.db:/srv/D0x-K1t-v2/doxkit.db"
+      - ./doxkit.db:/srv/D0x-K1t-v2/doxkit.db
     ports:
       - 5000:5000
     expose:
@@ -39,12 +39,13 @@ services:
         max-size: "200k"
         max-file: "10"
     environment:
-      - NGROK_AUTHTOKEN={$CHANGE_ME}
       - NGROK_CONFIG=/etc/ngrok.yml
     volumes:
-      - "$(pwd)/ngrok.yml:/etc/ngrok.yml"
+      - ./ngrok.yml:/etc/ngrok.yml
+    ports:
+      - 80:80
     networks:
-      - d0xk1t:
+      d0xk1t:
         aliases:
           - ngrok
         ipv4_address: 172.25.0.2
@@ -56,5 +57,5 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 127.25.0.0/24
-          gateway: 172.25.0.1
+        - subnet: "172.25.0.0/24"
+          gateway: 172.25.0.254
