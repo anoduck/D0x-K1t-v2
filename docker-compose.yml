@@ -1,10 +1,9 @@
-#! vim set filetype=yaml:
+# syntax=docker/dockerfile:1-labs
 # ------------------------------
 # Docker Compose file for D0X-K1t
 # -------------------------------
 
 ---
-version: '3.9'
 
 services:
   server:
@@ -18,8 +17,13 @@ services:
       context: .
       dockerfile: ./Dockerfile
     image: d0x-k1t:local
+    environment:
+      - HOST=172.25.0.1
+      - PORT=5000
     volumes:
       - ./doxkit.db:/srv/D0x-K1t-v2/doxkit.db
+      - ./config.py:/srv/D0x-K1t-v2/config.py
+      - ./ngrok.yml:/srv/D0x-K1t-v2/ngrok.yml
     ports:
       - 5000:5000
     expose:
