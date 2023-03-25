@@ -2,7 +2,7 @@
 name = "d0x-k1t-v2"
 version = "0.2.1"
 description = "A Doxing app written with Flask"
-authors = ["anoduck <11767-anoduck@users.noreply.gitgud.io>"]
+authors = ["Roo7K1d Roo7K1d@github", "anoduck anoduck@github.com"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "d0x_k1t_v2"}]

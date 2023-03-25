@@ -13,8 +13,6 @@ ENV PORT="5000"
 
 WORKDIR $SRV_PATH
 
-# ENTRYPOINT [ "flask" ]
-# CMD [ "--app", $APP, "run", "--host", $HOST, "--port", $PORT ]
 ENTRYPOINT [ "sh", "start.sh" ]
 
 RUN apk update && apk add git
